@@ -12,24 +12,20 @@
 Arduboy2 arduboy;
 //Tinyfont tinyfont = Tinyfont(arduboy.sBuffer, Arduboy2::width(), Arduboy2::height());
 
-const unsigned char PROGMEM peenStraight[] = {0x7c, 0x7c, 0x7c, 0x7c, 0x0c, 0x0c, 0x0c, 0x0c};
-const unsigned char PROGMEM peenUP[] = {0x7c, 0x7c, 0x7c, 0x7c, 0x0c, 0x0c, 0x06, 0x06};
-const unsigned char PROGMEM peenDown[] = {0x7c, 0x7c, 0x7c, 0x7c, 0x0c, 0x0c, 0x18, 0x18};
-
 void setup() {
   // put your setup code here, to run once:
   arduboy.begin();
-  tS();
-  arduboy.setFrameRate(40);
+  titleSequence();
+  arduboy.setFrameRate(difficulty);
 }
 
+//switch for gamestate. 
 void loop() {
   // pause render until it's time for the next frame
   arduboy.clear();
   if (!(arduboy.nextFrame()))
     return;
-  switch(GAMESTATE)
-  {
+  switch(GAMESTATE){
     case 0:
       mainMenu();
       break;
@@ -43,31 +39,21 @@ void loop() {
       mainOptions();
       break;
      case 4:
-      drawPenis();
+      drawPlayState();
       break;
   }
   arduboy.display();
 }
-
-void drawPenis(int x, int y)
-{
-  if(buttonHandlerDOWN ==0 && buttonHandlerUP ==0)
-  {
-    arduboy.drawBitmap(x,y,peenStraight,8,8,WHITE);
-  }
-  else if(buttonHandlerDOWN ==1){
-    arduboy.drawBitmap(x,y,peenUP,8,8,WHITE);
-  }
-  else{
-    arduboy.drawBitmap(x,y,peenDown,8,8,WHITE);
-  }
+void drawPlayState(){
+  drawScore();
+  drawPenis();
 }
+
 void drawPenis()
 {
   int x=pX;
   int y=pY;
-  if(arduboy.pressed(UP_BUTTON))
-  {
+  if(arduboy.pressed(UP_BUTTON)){
     if(pY>=7){
         arduboy.drawBitmap(x,y,peenDown,8,8,WHITE);
         pY--;
@@ -77,7 +63,7 @@ void drawPenis()
     }
   }
   else if(arduboy.pressed(DOWN_BUTTON)){
-    if(pY<=57){
+    if(pY<57){
         arduboy.drawBitmap(x,y,peenUP,8,8,WHITE);
         pY++;
     }
@@ -92,15 +78,16 @@ void drawPenis()
 
 }
 
-void drawScore(int Score)
-{
-  //To-do
+void drawScore(){
+  //To-do add cursor modification to handle larger digit cases. 
   arduboy.setCursor(0,0);
-  arduboy.print(Score);
-  arduboy.drawLine(4,0,4,128,WHITE);
+  arduboy.print(points);
+  arduboy.drawLine(0,7,128,7,WHITE);
 }
 
-void tS(){
+//Renders title sequence. 
+//add music bit
+void titleSequence(){
     //todo
     arduboy.clear(); 
     
@@ -112,13 +99,14 @@ void tS(){
     }
     
   }
-void mainMenu()
-{
+
+//Draws menu. Need to add animated bitmaps and audio. 
+void mainMenu(){
   arduboy.drawLine(5,6,7,8,WHITE);
   arduboy.clear(); 
   arduboy.setCursor(100,28);
   arduboy.print("Play");
-  arduboy.setCursor(100,37);
+  arduboy.setCursor(98,37);
   arduboy.print("Info");
   arduboy.setCursor(100,46);
   arduboy.print("Help");
@@ -126,28 +114,22 @@ void mainMenu()
   arduboy.print("Opts"); 
   arduboy.display();
   
-  if(arduboy.pressed(DOWN_BUTTON) && buttonHandlerDOWN == 0)
-  {
+  if(arduboy.pressed(DOWN_BUTTON) && buttonHandlerDOWN == 0){
     menuCursor++;
     buttonHandlerDOWN = 1;
-    if(menuCursor == 4)
-    {
+    if(menuCursor == 4){
       menuCursor = 0;
     }
   }
-  else if(arduboy.pressed(UP_BUTTON) && buttonHandlerUP == 0)
-  {
+  else if(arduboy.pressed(UP_BUTTON) && buttonHandlerUP == 0){
     menuCursor--;
     buttonHandlerUP = 1;
-    if(menuCursor <0)
-    {
+    if(menuCursor <0){
       menuCursor = 3;
     }
   }
-  if(arduboy.pressed(A_BUTTON))
-  {
-    switch(menuCursor)
-    {
+  if(arduboy.pressed(A_BUTTON)){
+    switch(menuCursor){
       case 0:
         GAMESTATE = 4;
         break;
@@ -163,8 +145,7 @@ void mainMenu()
     }
   }
   
-  switch(menuCursor)
-  {
+  switch(menuCursor){
     case 0:
       arduboy.drawLine(97,28,97,36,WHITE);
       break;
@@ -178,52 +159,49 @@ void mainMenu()
       arduboy.drawLine(97,55,97,64,WHITE);
       break;
   }
-  if(!arduboy.pressed(DOWN_BUTTON))
-  {
+  if(!arduboy.pressed(DOWN_BUTTON)){
     buttonHandlerDOWN = 0;
   }
-  if(!arduboy.pressed(UP_BUTTON))
-  {
+  if(!arduboy.pressed(UP_BUTTON)){
     buttonHandlerUP = 0;
   }
 }
 
-void mainHelp()
-{
+
+//Need to add text about functionality and a QR code perhaps
+void mainHelp(){
   //todo the dog
     arduboy.clear();
   arduboy.print("help");
   arduboy.display();
-  if(arduboy.pressed(B_BUTTON))
-  {
+  if(arduboy.pressed(B_BUTTON)){
     GAMESTATE = 0;
     return;
   }
 }
 
+//Need to add created BY
 void mainInfo(){
 
   //asdf
     arduboy.clear();
   arduboy.print("info");
   arduboy.display();
-  if(arduboy.pressed(B_BUTTON))
-  {
+  if(arduboy.pressed(B_BUTTON)){
     GAMESTATE = 0;
     return;
   }
 }
 
-void mainOptions()
-{
+//To-do Bit for music and difficulty(adjust framerate)
+void mainOptions(){
   //qwerty
   arduboy.clear();
   arduboy.print("opts");
   arduboy.display();
-  if(arduboy.pressed(B_BUTTON))
-  {
+  if(arduboy.pressed(B_BUTTON)){
     GAMESTATE = 0;
     return;
   }
 }
-
+//EOF
