@@ -1,5 +1,7 @@
-
-
+/*     Created by Scott Davis
+//     Simple side scroller with an immature twist.
+//
+*/
 #include <Arduboy2.h>
 //#include <Tinyfont.h>
 
@@ -18,11 +20,12 @@ void setup() {
   // put your setup code here, to run once:
   arduboy.begin();
   tS();
-  arduboy.setFrameRate(30);
+  arduboy.setFrameRate(40);
 }
 
 void loop() {
   // pause render until it's time for the next frame
+  arduboy.clear();
   if (!(arduboy.nextFrame()))
     return;
   switch(GAMESTATE)
@@ -40,7 +43,7 @@ void loop() {
       mainOptions();
       break;
      case 4:
-      mainMenu();
+      drawPenis();
       break;
   }
   arduboy.display();
@@ -48,8 +51,45 @@ void loop() {
 
 void drawPenis(int x, int y)
 {
-  //To-do
-  //arduboy.drawBitmap(x,y,peen,8,8,WHITE);
+  if(buttonHandlerDOWN ==0 && buttonHandlerUP ==0)
+  {
+    arduboy.drawBitmap(x,y,peenStraight,8,8,WHITE);
+  }
+  else if(buttonHandlerDOWN ==1){
+    arduboy.drawBitmap(x,y,peenUP,8,8,WHITE);
+  }
+  else{
+    arduboy.drawBitmap(x,y,peenDown,8,8,WHITE);
+  }
+}
+void drawPenis()
+{
+  int x=pX;
+  int y=pY;
+  if(arduboy.pressed(UP_BUTTON))
+  {
+    if(pY>=7){
+        arduboy.drawBitmap(x,y,peenDown,8,8,WHITE);
+        pY--;
+    }
+    else{
+      arduboy.drawBitmap(x,y,peenStraight,8,8,WHITE);
+    }
+  }
+  else if(arduboy.pressed(DOWN_BUTTON)){
+    if(pY<=57){
+        arduboy.drawBitmap(x,y,peenUP,8,8,WHITE);
+        pY++;
+    }
+    else{
+      arduboy.drawBitmap(x,y,peenStraight,8,8,WHITE);
+    }
+
+  }
+  else{
+    arduboy.drawBitmap(x,y,peenStraight,8,8,WHITE);
+  }
+
 }
 
 void drawScore(int Score)
@@ -109,16 +149,16 @@ void mainMenu()
     switch(menuCursor)
     {
       case 0:
-        GAMESTATE = 1;
+        GAMESTATE = 4;
         break;
       case 1:
-        GAMESTATE = 2;
+        GAMESTATE = 1;
         break;
       case 2:
-        GAMESTATE = 3;
+        GAMESTATE = 2;
         break;
       case 3:
-        GAMESTATE = 4;
+        GAMESTATE = 3;
         break;
     }
   }
